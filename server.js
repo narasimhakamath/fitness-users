@@ -1,6 +1,7 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const morgan = require("morgan");
+const cookieParser = require("cookie-parser");
 
 const errorHandler = require("./middlewares/error");
 
@@ -15,11 +16,14 @@ connectDB();
 
 // Route files.
 const usersRoute = require("./routes/users");
+const authRoute = require("./routes/auth");
 
 const app = express();
 
 // Body Parser.
 app.use(express.json());
+
+app.use(cookieParser());
 
 if(process.env.NODE_ENV === "development") {
 	app.use(morgan('dev'));
@@ -29,6 +33,7 @@ if(process.env.NODE_ENV === "development") {
 
 // Mount routers.
 app.use(`/api/v1/users`, usersRoute);
+app.use(`/api/v1/auth`, authRoute);
 
 app.use(errorHandler);
 
