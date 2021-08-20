@@ -40,3 +40,21 @@ exports.deleteUser = asyncHandler(async (request, response, next) => {
 
 	response.status(200).json({success: true, message: "Resource deleted."});
 });
+
+// Service function to get the user details based on the phone number and password to generate the JSON Web Token in the API gateway.
+exports.getUserData = asyncHandler(async(request, response, next) => {
+	const requestBody = request['body'];
+
+	if(!requestBody['phoneNumber'] || !requestBody['password'])
+		return next(new ErrorResponse(`Please provide phone number and password`, 400));
+
+	const userData = await User.findOne({phoneNumber: requestBody['phoneNumber']}).select('+password');
+	if(!userData)
+		return next(new ErrorResponse(`Invalid credentials`, 401));
+
+	const isMatch = await userData.matchPassword(requestBody['password']);
+	if(!isMatch)
+		return next(new ErrorResponse(`Invalid credentials`, 401));
+
+	response.status(200).json({success: true, message: "Token generated", data: userData, statusCode: 200});
+});

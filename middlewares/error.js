@@ -24,10 +24,13 @@ const errorHandler = (error, request, response, next) => {
 	if(error['name'] === "ValidationError") {
 		const message = Object.values(error['errors']).map(value => value['message']);
 		errorObject = new ErrorResponse(message, 400);
-
 	}
 
-	response.status(errorObject['statusCode'] || 500).json({success: false, message: errorObject['message'] || `Server Error`});
+	response.status(errorObject['statusCode'] || 500).json({
+		'success': false,
+		'message': errorObject['message'] || `Server Error`,
+		'statusCode': errorObject['statusCode'] || 500
+	});
 }
 
 module.exports = errorHandler;
